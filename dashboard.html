@@ -1,0 +1,2181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>UMG - Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --bg-black: #000;
+            --bg-slate: #121212;
+            --bg-card: #1a1a1a;
+            --bg-card-hover: #222;
+            --gold: #d4af37;
+            --gold-light: #f0d060;
+            --gold-dark: #b8962e;
+            --emerald: #4caf50;
+            --emerald-dark: #388e3c;
+            --blue-start: #1e3c72;
+            --blue-end: #2a5298;
+            --text-primary: #fff;
+            --text-secondary: #b0b0b0;
+            --text-muted: #6a6a6a;
+            --border-dark: #2a2a2a;
+            --border-gold: #d4af37;
+            --danger: #ef5350;
+            --pending: #ff9800;
+            --success: #4caf50;
+            --shadow: 0 8px 32px rgba(0, 0, 0, .5);
+            --shadow-gold: 0 4px 20px rgba(212, 175, 55, .3);
+            --radius: 14px;
+            --radius-sm: 8px;
+            --radius-lg: 20px;
+            --nav-height: 64px;
+            --header-height: 56px;
+            --transition: all .3s cubic-bezier(.4, 0, .2, 1);
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #050505;
+            color: var(--text-primary);
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+        .app-container {
+            width: 100%;
+            max-width: 414px;
+            min-height: 100vh;
+            background: var(--bg-black);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 0 60px rgba(212, 175, 55, .05);
+        }
+        .app-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(0, 0, 0, .92);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-dark);
+            padding: 0 16px;
+            height: var(--header-height);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            user-select: none;
+        }
+        .header-brand .globe-icon {
+            width: 34px;
+            height: 34px;
+            background: radial-gradient(circle at 30% 30%, var(--gold-light), var(--gold-dark));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: #000;
+            box-shadow: var(--shadow-gold);
+            animation: globePulse 2s ease-in-out infinite;
+        }
+        @keyframes globePulse {
+            0%,
+            100% {
+                box-shadow: 0 4px 20px rgba(212, 175, 55, .3);
+            }
+            50% {
+                box-shadow: 0 4px 35px rgba(212, 175, 55, .55);
+            }
+        }
+        .header-brand .brand-text {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.1;
+        }
+        .header-brand .brand-name {
+            font-size: 16px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, var(--gold-light), var(--gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .header-brand .brand-level {
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            letter-spacing: 1px;
+            transition: var(--transition);
+        }
+        .header-brand .brand-level.highlight {
+            color: var(--gold);
+            font-size: 12px;
+            font-weight: 800;
+            text-shadow: 0 0 10px rgba(212, 175, 55, .5);
+        }
+        .wallet-btn {
+            background: linear-gradient(135deg, var(--blue-start), var(--blue-end));
+            color: #fff;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: var(--transition);
+            letter-spacing: .5px;
+            font-family: inherit;
+        }
+        .wallet-btn:active {
+            transform: scale(.95);
+        }
+        .app-main {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: calc(var(--nav-height) + 20px);
+            scrollbar-width: none;
+        }
+        .app-main::-webkit-scrollbar {
+            display: none;
+        }
+        .page {
+            display: none;
+            animation: fadeIn .3s ease;
+        }
+        .page.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .section {
+            padding: 16px;
+        }
+        .section-title {
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+            letter-spacing: .5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .section-title i {
+            color: var(--gold);
+            font-size: 14px;
+        }
+        .carousel {
+            position: relative;
+            border-radius: var(--radius);
+            overflow: hidden;
+            height: 160px;
+            margin-bottom: 12px;
+            background: var(--bg-card);
+        }
+        .carousel-track {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            transition: transform .6s cubic-bezier(.4, 0, .2, 1);
+        }
+        .carousel-slide {
+            min-width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+        .carousel-slide.slide-1 {
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+        }
+        .carousel-slide.slide-2 {
+            background: linear-gradient(135deg, #1a0a0a, #2d1a0a, #4a2a0a);
+        }
+        .carousel-slide.slide-3 {
+            background: linear-gradient(135deg, #0a1a0a, #0a2d1a, #0a4a2a);
+        }
+        .carousel-slide .slide-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+            color: var(--gold);
+        }
+        .carousel-slide .slide-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 4px;
+        }
+        .carousel-slide .slide-sub {
+            font-size: 12px;
+            color: rgba(255, 255, 255, .7);
+        }
+        .carousel-dots {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 6px;
+            z-index: 5;
+        }
+        .carousel-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, .3);
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            padding: 0;
+        }
+        .carousel-dot.active {
+            background: var(--gold);
+            width: 18px;
+            border-radius: 3px;
+            box-shadow: var(--shadow-gold);
+        }
+        .ticker-wrapper {
+            background: var(--bg-slate);
+            border-radius: var(--radius-sm);
+            padding: 8px 12px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            overflow: hidden;
+            border: 1px solid var(--border-dark);
+        }
+        .ticker-label {
+            flex-shrink: 0;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--emerald);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            background: rgba(76, 175, 80, .15);
+            padding: 4px 8px;
+            border-radius: 12px;
+        }
+        .ticker-label .live-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--emerald);
+            animation: liveBlink 1.5s ease-in-out infinite;
+        }
+        @keyframes liveBlink {
+            0%,
+            100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: .3;
+            }
+        }
+        .ticker-scroll {
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+            height: 20px;
+        }
+        .ticker-items {
+            display: flex;
+            gap: 40px;
+            position: absolute;
+            white-space: nowrap;
+            animation: tickerScroll 20s linear infinite;
+        }
+        @keyframes tickerScroll {
+            0% {
+                transform: translateX(0);
+            }
+            100% {
+                transform: translateX(-50%);
+            }
+        }
+        .ticker-item {
+            font-size: 11px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .ticker-item .amount {
+            color: var(--emerald);
+            font-weight: 700;
+        }
+        .ticker-item .member-id {
+            color: var(--gold);
+            font-weight: 600;
+        }
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .feature-item {
+            background: var(--bg-card);
+            border-radius: var(--radius-sm);
+            padding: 14px 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+            border: 1px solid var(--border-dark);
+            text-decoration: none;
+        }
+        .feature-item:active {
+            transform: scale(.94);
+            background: var(--bg-card-hover);
+        }
+        .feature-item .feature-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: var(--gold);
+            background: rgba(212, 175, 55, .1);
+            border: 1px solid rgba(212, 175, 55, .25);
+        }
+        .feature-item .feature-label {
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            letter-spacing: .3px;
+            text-align: center;
+        }
+        .vip-cards {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .vip-card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            position: relative;
+            transition: var(--transition);
+            border: 2px solid var(--border-dark);
+            cursor: pointer;
+        }
+        .vip-card:active {
+            transform: scale(.97);
+        }
+        .vip-card.active {
+            border-color: var(--gold);
+            background: linear-gradient(135deg, rgba(212, 175, 55, .08), var(--bg-card));
+            box-shadow: var(--shadow-gold);
+            cursor: default;
+        }
+        .vip-card.locked {
+            opacity: .8;
+            border-color: var(--border-dark);
+            cursor: pointer;
+        }
+        .vip-card .vip-level-badge {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 15px;
+            flex-shrink: 0;
+            letter-spacing: 1px;
+        }
+        .vip-card.active .vip-level-badge {
+            background: linear-gradient(135deg, var(--gold-light), var(--gold-dark));
+            color: #000;
+            box-shadow: var(--shadow-gold);
+        }
+        .vip-card.locked .vip-level-badge {
+            background: var(--bg-slate);
+            color: var(--text-muted);
+            border: 1px solid var(--border-dark);
+        }
+        .vip-card .vip-info {
+            flex: 1;
+        }
+        .vip-card .vip-name {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+        .vip-card.active .vip-name {
+            color: var(--gold);
+        }
+        .vip-card .vip-tasks {
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+        .vip-card .vip-reward {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--emerald);
+            margin-top: 2px;
+        }
+        .vip-card .vip-status {
+            position: absolute;
+            top: 8px;
+            right: 12px;
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            padding: 3px 8px;
+            border-radius: 10px;
+        }
+        .vip-card.active .vip-status {
+            background: rgba(212, 175, 55, .2);
+            color: var(--gold);
+        }
+        .vip-card.locked .vip-status {
+            background: rgba(255, 255, 255, .05);
+            color: var(--text-muted);
+        }
+        .vip-card .upgrade-hint {
+            font-size: 9px;
+            color: var(--gold);
+            font-weight: 600;
+            letter-spacing: .5px;
+            margin-top: 4px;
+            display: none;
+        }
+        .vip-card.locked .upgrade-hint {
+            display: block;
+        }
+        .task-metrics {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        .metric-card {
+            background: var(--bg-card);
+            border-radius: var(--radius-sm);
+            padding: 14px;
+            text-align: center;
+            border: 1px solid var(--border-dark);
+        }
+        .metric-card .metric-value {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--gold);
+            margin-bottom: 2px;
+        }
+        .metric-card .metric-label {
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: .8px;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+        .task-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .task-item {
+            background: var(--bg-card);
+            border-radius: var(--radius-sm);
+            padding: 12px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border: 1px solid var(--border-dark);
+            transition: var(--transition);
+        }
+        .task-item .task-info {
+            flex: 1;
+        }
+        .task-item .task-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+        .task-item .task-reward {
+            font-size: 11px;
+            color: var(--emerald);
+            font-weight: 600;
+        }
+        .task-item .complete-btn {
+            background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+            color: #000;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 16px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            letter-spacing: .5px;
+            white-space: nowrap;
+            font-family: inherit;
+        }
+        .task-item .complete-btn:active {
+            transform: scale(.93);
+        }
+        .task-item .complete-btn:disabled {
+            background: var(--bg-slate);
+            color: var(--text-muted);
+            cursor: not-allowed;
+            transform: none;
+        }
+        .task-item.completed {
+            border-color: rgba(76, 175, 80, .4);
+            background: rgba(76, 175, 80, .05);
+        }
+        .task-item.completed .task-name {
+            color: var(--emerald);
+        }
+        .task-limit-banner {
+            background: rgba(212, 175, 55, .1);
+            border: 1px solid rgba(212, 175, 55, .3);
+            border-radius: var(--radius-sm);
+            padding: 12px;
+            text-align: center;
+            font-size: 12px;
+            color: var(--gold);
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: none;
+        }
+        .task-limit-banner.show {
+            display: block;
+            animation: fadeIn .3s ease;
+        }
+        .countdown-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, .9);
+            z-index: 400;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 20px;
+            backdrop-filter: blur(8px);
+        }
+        .countdown-overlay.show {
+            display: flex;
+        }
+        .countdown-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 4px solid var(--gold);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            font-weight: 800;
+            color: var(--gold);
+            box-shadow: var(--shadow-gold);
+        }
+        .countdown-text {
+            font-size: 14px;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+        .schedule-range {
+            margin-bottom: 16px;
+        }
+        .schedule-range .range-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+        .day-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+        }
+        .day-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border-dark);
+            border-radius: var(--radius-sm);
+            padding: 10px 0;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+            font-family: inherit;
+        }
+        .day-btn.selected {
+            border-color: var(--gold);
+            background: rgba(212, 175, 55, .15);
+            color: var(--gold);
+            box-shadow: var(--shadow-gold);
+        }
+        .day-btn.locked {
+            opacity: .4;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        .save-schedule-btn {
+            width: 100%;
+            padding: 14px;
+            border-radius: var(--radius);
+            border: none;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            letter-spacing: 1px;
+            background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+            color: #000;
+            box-shadow: var(--shadow-gold);
+            font-family: inherit;
+            transition: var(--transition);
+        }
+        .save-schedule-btn:disabled {
+            background: var(--bg-slate);
+            color: var(--text-muted);
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        .schedule-locked-banner {
+            background: rgba(76, 175, 80, .1);
+            border: 1px solid rgba(76, 175, 80, .3);
+            border-radius: var(--radius-sm);
+            padding: 12px;
+            text-align: center;
+            font-size: 12px;
+            color: var(--emerald);
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: none;
+        }
+        .schedule-locked-banner.show {
+            display: block;
+        }
+        .account-header {
+            background: linear-gradient(135deg, var(--blue-start), var(--blue-end));
+            border-radius: var(--radius-lg);
+            padding: 20px 16px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+        .account-avatar {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--gold-light), var(--gold-dark));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: #000;
+            font-weight: 800;
+            flex-shrink: 0;
+            box-shadow: var(--shadow-gold);
+            position: relative;
+            z-index: 1;
+        }
+        .account-info {
+            flex: 1;
+            position: relative;
+            z-index: 1;
+        }
+        .account-phone {
+            font-size: 16px;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+        .account-level-tag {
+            display: inline-block;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 12px;
+            background: rgba(212, 175, 55, .3);
+            color: var(--gold-light);
+            letter-spacing: 1px;
+        }
+        .account-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        .stat-card {
+            background: var(--bg-card);
+            border-radius: var(--radius-sm);
+            padding: 14px;
+            text-align: center;
+            border: 1px solid var(--border-dark);
+        }
+        .stat-card .stat-value {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--text-primary);
+        }
+        .stat-card .stat-value.gold {
+            color: var(--gold);
+        }
+        .stat-card .stat-value.green {
+            color: var(--emerald);
+        }
+        .stat-card .stat-label {
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: .8px;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+        .wallet-balance-card {
+            background: linear-gradient(135deg, var(--blue-start), var(--blue-end));
+            border-radius: var(--radius-lg);
+            padding: 24px 20px;
+            text-align: center;
+            margin-bottom: 16px;
+        }
+        .wallet-balance-amount {
+            font-size: 36px;
+            font-weight: 800;
+            color: #fff;
+        }
+        .wallet-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        .wallet-action-btn {
+            padding: 14px;
+            border-radius: var(--radius);
+            border: none;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: inherit;
+            transition: var(--transition);
+        }
+        .wallet-action-btn.recharge {
+            background: linear-gradient(135deg, var(--emerald-dark), var(--emerald));
+            color: #fff;
+        }
+        .wallet-action-btn.withdraw {
+            background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+            color: #000;
+        }
+        .wallet-history {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .history-item {
+            background: var(--bg-card);
+            border-radius: var(--radius-sm);
+            padding: 12px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border: 1px solid var(--border-dark);
+        }
+        .history-item .history-info {
+            flex: 1;
+        }
+        .history-item .history-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .history-item .history-date {
+            font-size: 10px;
+            color: var(--text-muted);
+        }
+        .history-item .history-amount {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--emerald);
+        }
+        .history-item .history-status {
+            font-size: 9px;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 3px 8px;
+            border-radius: 10px;
+        }
+        .history-status.pending {
+            background: rgba(255, 152, 0, .15);
+            color: var(--pending);
+        }
+        .history-status.successful {
+            background: rgba(76, 175, 80, .15);
+            color: var(--success);
+        }
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, .7);
+            z-index: 200;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+        .modal-overlay.show {
+            display: flex;
+        }
+        .modal-content {
+            background: var(--bg-slate);
+            border-radius: var(--radius-lg);
+            padding: 24px 20px;
+            width: 90%;
+            max-width: 380px;
+            border: 1px solid var(--border-dark);
+            max-height: 85vh;
+            overflow-y: auto;
+            animation: modalSlideUp .3s ease;
+        }
+        @keyframes modalSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .modal-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 18px;
+            cursor: pointer;
+        }
+        .modal-input {
+            width: 100%;
+            background: var(--bg-card);
+            border: 1px solid var(--border-dark);
+            border-radius: var(--radius-sm);
+            padding: 12px 14px;
+            font-size: 14px;
+            color: #fff;
+            margin-bottom: 12px;
+            font-family: inherit;
+            outline: none;
+            transition: var(--transition);
+        }
+        .modal-input:focus {
+            border-color: var(--gold);
+            box-shadow: 0 0 0 2px rgba(212, 175, 55, .15);
+        }
+        .modal-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+            display: block;
+            letter-spacing: .5px;
+        }
+        .modal-btn {
+            width: 100%;
+            padding: 13px;
+            border-radius: var(--radius-sm);
+            border: none;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: inherit;
+            transition: var(--transition);
+            margin-bottom: 8px;
+        }
+        .modal-btn:active {
+            transform: scale(.97);
+        }
+        .modal-btn.primary {
+            background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+            color: #000;
+        }
+        .modal-btn.danger {
+            background: var(--danger);
+            color: #fff;
+        }
+        .modal-btn.success-btn {
+            background: linear-gradient(135deg, var(--emerald-dark), var(--emerald));
+            color: #fff;
+        }
+        .modal-btn.cancel-btn {
+            background: transparent;
+            color: var(--text-muted);
+            border: 1px solid var(--border-dark);
+        }
+        .modal-message {
+            font-size: 12px;
+            padding: 10px;
+            border-radius: var(--radius-sm);
+            margin-bottom: 12px;
+            text-align: center;
+            font-weight: 600;
+            display: none;
+        }
+        .modal-message.error {
+            background: rgba(239, 83, 80, .15);
+            color: var(--danger);
+            display: block;
+        }
+        .modal-message.success {
+            background: rgba(76, 175, 80, .15);
+            color: var(--emerald);
+            display: block;
+        }
+        .bank-details-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border-dark);
+            border-radius: var(--radius-sm);
+            padding: 14px;
+            margin-bottom: 14px;
+        }
+        .bank-details-box .bank-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            font-size: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, .05);
+        }
+        .bank-details-box .bank-row:last-child {
+            border-bottom: none;
+        }
+        .bank-details-box .bank-label {
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+        .bank-details-box .bank-value {
+            color: var(--text-primary);
+            font-weight: 700;
+            letter-spacing: .5px;
+        }
+        .file-upload-box {
+            border: 2px dashed var(--border-dark);
+            border-radius: var(--radius-sm);
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            margin-bottom: 12px;
+            transition: var(--transition);
+        }
+        .file-upload-box.active {
+            border-color: var(--gold);
+        }
+        .file-upload-box i {
+            font-size: 24px;
+            color: var(--text-muted);
+        }
+        .file-upload-box p {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 8px;
+        }
+        .invitation-box {
+            background: var(--bg-card);
+            border: 1px solid var(--gold);
+            border-radius: var(--radius-sm);
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 16px;
+        }
+        .invitation-code {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--gold);
+            letter-spacing: 3px;
+        }
+        .message-item {
+            background: var(--bg-card);
+            border-radius: var(--radius-sm);
+            padding: 14px;
+            margin-bottom: 8px;
+            border: 1px solid var(--border-dark);
+        }
+        .message-item .msg-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--gold);
+        }
+        .message-item .msg-body {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+        .fee-display {
+            background: rgba(212, 175, 55, .1);
+            border: 1px solid rgba(212, 175, 55, .3);
+            border-radius: var(--radius-sm);
+            padding: 12px;
+            text-align: center;
+            font-size: 16px;
+            color: var(--gold);
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+        .withdraw-step-indicator {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        .step-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--border-dark);
+            transition: var(--transition);
+        }
+        .step-dot.active {
+            background: var(--gold);
+            box-shadow: var(--shadow-gold);
+        }
+        .step-dot.done {
+            background: var(--emerald);
+        }
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 414px;
+            background: rgba(0, 0, 0, .95);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid var(--border-dark);
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            height: var(--nav-height);
+            z-index: 150;
+            padding-bottom: env(safe-area-inset-bottom, 0);
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-family: inherit;
+            padding: 6px 10px;
+            position: relative;
+        }
+        .nav-item i {
+            font-size: 18px;
+            transition: var(--transition);
+        }
+        .nav-item span {
+            font-size: 9px;
+            font-weight: 600;
+            letter-spacing: .3px;
+        }
+        .nav-item.active {
+            color: var(--gold);
+        }
+        .nav-item .nav-indicator {
+            position: absolute;
+            top: 0;
+            width: 16px;
+            height: 2px;
+            border-radius: 1px;
+            background: var(--gold);
+            opacity: 0;
+            transition: var(--transition);
+        }
+        .nav-item.active .nav-indicator {
+            opacity: 1;
+        }
+        .toast {
+            position: fixed;
+            top: 70px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-20px);
+            background: var(--bg-slate);
+            border: 1px solid var(--border-dark);
+            border-radius: var(--radius-sm);
+            padding: 10px 18px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-primary);
+            z-index: 600;
+            opacity: 0;
+            transition: var(--transition);
+            pointer-events: none;
+            max-width: 380px;
+            text-align: center;
+            box-shadow: var(--shadow);
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+        .toast.success {
+            border-color: rgba(76, 175, 80, .4);
+            color: var(--emerald);
+        }
+        .toast.error {
+            border-color: rgba(239, 83, 80, .4);
+            color: var(--danger);
+        }
+        .toast.gold {
+            border-color: rgba(212, 175, 55, .4);
+            color: var(--gold);
+        }
+        @media (min-width:415px) {
+            .app-container {
+                min-height: 100vh;
+                max-height: 100vh;
+                border-left: 1px solid var(--border-dark);
+                border-right: 1px solid var(--border-dark);
+            }
+            .bottom-nav {
+                max-width: 414px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container" id="app">
+        <header class="app-header">
+            <div class="header-brand" onclick="navigateTo('home')">
+                <div class="globe-icon"><i class="fas fa-globe-americas"></i></div>
+                <div class="brand-text">
+                    <span class="brand-name">UMG</span>
+                    <span class="brand-level highlight" id="headerLevel">Level: U1</span>
+                </div>
+            </div>
+            <button class="wallet-btn" onclick="openWallet()"><i class="fas fa-wallet"></i> My Wallet</button>
+        </header>
+
+        <main class="app-main" id="mainContent">
+            <!-- Home Page -->
+            <div class="page active" id="page-home">
+                <div class="section">
+                    <div class="carousel">
+                        <div class="carousel-track" id="carouselTrack">
+                            <div class="carousel-slide slide-1"><div class="slide-icon"><i class="fas fa-chart-line"></i></div><div class="slide-title">Smart Investment</div><div class="slide-sub">Grow your wealth with UMG</div></div>
+                            <div class="carousel-slide slide-2"><div class="slide-icon"><i class="fas fa-gift"></i></div><div class="slide-title">Daily Rewards</div><div class="slide-sub">Earn up to 5,250 ETB per day</div></div>
+                            <div class="carousel-slide slide-3"><div class="slide-icon"><i class="fas fa-shield-alt"></i></div><div class="slide-title">Secure & Trusted</div><div class="slide-sub">Over 10,000+ active members</div></div>
+                        </div>
+                        <div class="carousel-dots" id="carouselDots">
+                            <button class="carousel-dot active" data-slide="0"></button>
+                            <button class="carousel-dot" data-slide="1"></button>
+                            <button class="carousel-dot" data-slide="2"></button>
+                        </div>
+                    </div>
+                    <div class="ticker-wrapper">
+                        <div class="ticker-label"><span class="live-dot"></span> LIVE</div>
+                        <div class="ticker-scroll"><div class="ticker-items" id="tickerItems"></div></div>
+                    </div>
+                    <div class="feature-grid">
+                        <div class="feature-item" onclick="openRechargeModal()"><div class="feature-icon"><i class="fas fa-plus-circle"></i></div><span class="feature-label">Recharge</span></div>
+                        <div class="feature-item" onclick="openWithdrawModal()"><div class="feature-icon"><i class="fas fa-arrow-down"></i></div><span class="feature-label">Withdraw</span></div>
+                        <div class="feature-item" onclick="openInvitation()"><div class="feature-icon"><i class="fas fa-envelope-open-text"></i></div><span class="feature-label">Invitation</span></div>
+                        <div class="feature-item" onclick="openGiftCode()"><div class="feature-icon"><i class="fas fa-gift"></i></div><span class="feature-label">Gift Code</span></div>
+                        <div class="feature-item" onclick="navigateTo('schedule')"><div class="feature-icon"><i class="fas fa-calendar-check"></i></div><span class="feature-label">Schedule</span></div>
+                        <div class="feature-item" onclick="navigateTo('tasks')"><div class="feature-icon"><i class="fas fa-clipboard-list"></i></div><span class="feature-label">Tasks</span></div>
+                        <div class="feature-item" onclick="navigateTo('message')"><div class="feature-icon"><i class="fas fa-comment-dots"></i></div><span class="feature-label">Message</span></div>
+                        <div class="feature-item" onclick="showToast('🛠️ Service center 24/7', 'gold')"><div class="feature-icon"><i class="fas fa-headset"></i></div><span class="feature-label">Service</span></div>
+                    </div>
+                    <div class="section-title"><i class="fas fa-crown"></i> VIP Membership</div>
+                    <div class="vip-cards" id="vipCards"></div>
+                </div>
+            </div>
+
+            <!-- Tasks Page -->
+            <div class="page" id="page-tasks">
+                <div class="section">
+                    <div class="task-metrics">
+                        <div class="metric-card"><div class="metric-value" id="remainingTasks">0</div><div class="metric-label">Remaining</div></div>
+                        <div class="metric-card"><div class="metric-value" id="completedTasks">0</div><div class="metric-label">Completed</div></div>
+                        <div class="metric-card"><div class="metric-value" id="earnedPerTask">18 ETB</div><div class="metric-label">Per Task</div></div>
+                    </div>
+                    <div class="task-limit-banner" id="taskLimitBanner">🏆 Today's tasks are completed!</div>
+                    <div class="section-title"><i class="fas fa-tasks"></i> Today's Tasks <span id="taskLevelTag" style="font-size:11px;color:var(--gold);font-weight:600;"></span></div>
+                    <div class="task-list" id="taskList"></div>
+                </div>
+            </div>
+
+            <!-- Schedule Page -->
+            <div class="page" id="page-schedule">
+                <div class="section">
+                    <div class="section-title"><i class="fas fa-calendar-alt"></i> Withdrawal Schedule</div>
+                    <div class="schedule-locked-banner" id="scheduleLockedBanner"><i class="fas fa-lock"></i> Schedule locked. You can only withdraw on your selected dates.</div>
+                    <div class="schedule-range"><div class="range-label">📅 Days 1-10 (Select 1 day)</div><div class="day-grid" id="range1Days"></div></div>
+                    <div class="schedule-range"><div class="range-label">📅 Days 11-20 (Select 1 day)</div><div class="day-grid" id="range2Days"></div></div>
+                    <div class="schedule-range"><div class="range-label">📅 Days 21-30 (Select 1 day)</div><div class="day-grid" id="range3Days"></div></div>
+                    <button class="save-schedule-btn" id="saveScheduleBtn" onclick="saveSchedule()"><i class="fas fa-save"></i> Save Withdrawal Schedule</button>
+                </div>
+            </div>
+
+            <!-- Message Page -->
+            <div class="page" id="page-message">
+                <div class="section">
+                    <div class="section-title"><i class="fas fa-comment-dots"></i> Platform Messages</div>
+                    <div id="messageList"></div>
+                </div>
+            </div>
+
+            <!-- Account Page -->
+            <div class="page" id="page-account">
+                <div class="section">
+                    <div class="account-header">
+                        <div class="account-avatar">U</div>
+                        <div class="account-info">
+                            <div class="account-level-tag" id="accountLevelTag">⭐ U1 Member</div>
+                            <div class="account-phone" id="accountPhone">***</div>
+                        </div>
+                    </div>
+                    <div class="account-stats">
+                        <div class="stat-card"><div class="stat-value gold" id="acctBalance">2,500 ETB</div><div class="stat-label">Balance</div></div>
+                        <div class="stat-card"><div class="stat-value" id="acctTasksDone">0</div><div class="stat-label">Tasks Done</div></div>
+                        <div class="stat-card"><div class="stat-value green" id="acctTodayEarnings">0 ETB</div><div class="stat-label">Today's Earnings</div></div>
+                        <div class="stat-card"><div class="stat-value" id="acctTotalEarnings">1,250 ETB</div><div class="stat-label">Total Earnings</div></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <nav class="bottom-nav" id="bottomNav">
+            <button class="nav-item active" data-page="home" onclick="navigateTo('home')"><div class="nav-indicator"></div><i class="fas fa-home"></i><span>Home</span></button>
+            <button class="nav-item" data-page="tasks" onclick="navigateTo('tasks')"><div class="nav-indicator"></div><i class="fas fa-clipboard-list"></i><span>Tasks</span></button>
+            <button class="nav-item" data-page="schedule" onclick="navigateTo('schedule')"><div class="nav-indicator"></div><i class="fas fa-calendar"></i><span>Schedule</span></button>
+            <button class="nav-item" data-page="message" onclick="navigateTo('message')"><div class="nav-indicator"></div><i class="fas fa-comment-dots"></i><span>Message</span></button>
+            <button class="nav-item" data-page="account" onclick="navigateTo('account')"><div class="nav-indicator"></div><i class="fas fa-user"></i><span>Account</span></button>
+        </nav>
+
+        <div class="toast" id="toast"></div>
+
+        <!-- Wallet Modal -->
+        <div class="modal-overlay" id="walletOverlay">
+            <div class="modal-content">
+                <div class="modal-title"><span><i class="fas fa-wallet" style="color:var(--gold);"></i> My Wallet</span><button class="modal-close" onclick="closeWallet()"><i class="fas fa-times"></i></button></div>
+                <div class="wallet-balance-card"><div style="font-size:12px;color:rgba(255,255,255,.7);">Total Balance</div><div class="wallet-balance-amount"><span style="font-size:18px;">ETB</span> <span id="walletBalanceAmount">2,500</span></div></div>
+                <div class="wallet-actions">
+                    <button class="wallet-action-btn recharge" onclick="closeWallet();openRechargeModal()"><i class="fas fa-plus"></i> Recharge</button>
+                    <button class="wallet-action-btn withdraw" onclick="closeWallet();openWithdrawModal()"><i class="fas fa-arrow-down"></i> Withdraw</button>
+                </div>
+                <div class="section-title" style="font-size:13px;"><i class="fas fa-history"></i> Transaction History</div>
+                <div class="wallet-history" id="walletHistory"></div>
+            </div>
+        </div>
+
+        <!-- Recharge Modal -->
+        <div class="modal-overlay" id="rechargeOverlay">
+            <div class="modal-content">
+                <div class="modal-title"><span><i class="fas fa-plus-circle" style="color:var(--emerald);"></i> Recharge</span><button class="modal-close" onclick="closeRechargeModal()"><i class="fas fa-times"></i></button></div>
+                <div class="bank-details-box">
+                    <div class="bank-row"><span class="bank-label">Bank Name</span><span class="bank-value">CBE</span></div>
+                    <div class="bank-row"><span class="bank-label">Account Holder</span><span class="bank-value">Ms Hiwot Eshetu</span></div>
+                    <div class="bank-row"><span class="bank-label">Account Number</span><span class="bank-value">1000139470277</span></div>
+                </div>
+                <label class="modal-label">Deposit Amount (ETB)</label>
+                <input type="number" class="modal-input" id="rechargeAmount" placeholder="Enter amount" min="10">
+                <label class="modal-label">Screenshot Proof</label>
+                <div class="file-upload-box" id="rechargeFileBox" onclick="document.getElementById('rechargeScreenshot').click()">
+                    <i class="fas fa-upload"></i>
+                    <p>Click to upload screenshot</p>
+                </div>
+                <input type="file" id="rechargeScreenshot" accept="image/*" style="display:none;" onchange="handleRechargeFile(event)">
+                <button class="modal-btn primary" onclick="processRecharge()"><i class="fas fa-paper-plane"></i> Recharge Now</button>
+                <div class="modal-message" id="rechargeMessage"></div>
+            </div>
+        </div>
+
+        <!-- Withdraw Modal -->
+        <div class="modal-overlay" id="withdrawOverlay">
+            <div class="modal-content" id="withdrawContent">
+                <!-- Step 1: Real Name Verification -->
+                <div id="withdrawStep1">
+                    <div class="modal-title"><span><i class="fas fa-arrow-down" style="color:var(--gold);"></i> Withdraw</span><button class="modal-close" onclick="closeWithdrawModal()"><i class="fas fa-times"></i></button></div>
+                    <div class="withdraw-step-indicator">
+                        <div class="step-dot active"></div>
+                        <div class="step-dot"></div>
+                        <div class="step-dot"></div>
+                    </div>
+                    <div style="text-align:center;padding:20px 0;">
+                        <i class="fas fa-user-shield" style="font-size:48px;color:var(--gold);margin-bottom:16px;"></i>
+                        <div style="font-size:18px;font-weight:700;margin-bottom:8px;">Real Name Verification</div>
+                        <p style="font-size:12px;color:var(--text-muted);margin-bottom:16px;">Please confirm your identity to proceed with withdrawal.</p>
+                    </div>
+                    <button class="modal-btn primary" onclick="withdrawConfirmName()"><i class="fas fa-check"></i> Confirm</button>
+                    <button class="modal-btn cancel-btn" onclick="closeWithdrawModal()">Cancel</button>
+                </div>
+                <!-- Step 2: Fee Display + Bank Selection -->
+                <div id="withdrawStep2" style="display:none;">
+                    <div class="modal-title"><span><i class="fas fa-arrow-down" style="color:var(--gold);"></i> Withdraw</span><button class="modal-close" onclick="closeWithdrawModal()"><i class="fas fa-times"></i></button></div>
+                    <div class="withdraw-step-indicator">
+                        <div class="step-dot done"></div>
+                        <div class="step-dot active"></div>
+                        <div class="step-dot"></div>
+                    </div>
+                    <div class="fee-display" id="withdrawFeeDisplay">Fee: 250 ETB (U1)</div>
+                    <label class="modal-label">Select Bank</label>
+                    <button class="modal-btn primary" onclick="selectBank('CBE')"><i class="fas fa-university"></i> CBE</button>
+                    <button class="modal-btn success-btn" onclick="selectBank('Telebirr')"><i class="fas fa-mobile-alt"></i> Telebirr</button>
+                </div>
+                <!-- Step 3: Bank Details + Screenshot + FT Number -->
+                <div id="withdrawStep3" style="display:none;">
+                    <div class="modal-title"><span><i class="fas fa-arrow-down" style="color:var(--gold);"></i> Withdraw</span><button class="modal-close" onclick="closeWithdrawModal()"><i class="fas fa-times"></i></button></div>
+                    <div class="withdraw-step-indicator">
+                        <div class="step-dot done"></div>
+                        <div class="step-dot done"></div>
+                        <div class="step-dot active"></div>
+                    </div>
+                    <div class="bank-details-box" id="withdrawBankDetails"></div>
+                    <label class="modal-label">Screenshot Proof</label>
+                    <div class="file-upload-box" id="withdrawFileBox" onclick="document.getElementById('withdrawScreenshot').click()">
+                        <i class="fas fa-upload"></i>
+                        <p>Click to upload screenshot</p>
+                    </div>
+                    <input type="file" id="withdrawScreenshot" accept="image/*" style="display:none;" onchange="handleWithdrawFile(event)">
+                    <label class="modal-label">FT Number</label>
+                    <input type="text" class="modal-input" id="withdrawFTNumber" placeholder="Enter FT number">
+                    <label class="modal-label">Withdrawal Amount (ETB)</label>
+                    <input type="number" class="modal-input" id="withdrawAmount" placeholder="Enter amount" min="10">
+                    <button class="modal-btn danger" onclick="processWithdraw()"><i class="fas fa-paper-plane"></i> Submit Withdrawal</button>
+                    <div class="modal-message" id="withdrawMessage"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Invitation Modal -->
+        <div class="modal-overlay" id="invitationOverlay">
+            <div class="modal-content">
+                <div class="modal-title"><span><i class="fas fa-envelope"></i> Invitation</span><button class="modal-close" onclick="closeInvitation()"><i class="fas fa-times"></i></button></div>
+                <div class="invitation-box">
+                    <p style="font-size:12px;color:var(--text-muted);margin-bottom:8px;">Your Unique Invitation Code</p>
+                    <div class="invitation-code" id="invitationCode">UMG-XXXXX</div>
+                    <p style="font-size:10px;color:var(--text-muted);margin-top:8px;">Share this code to invite friends</p>
+                </div>
+                <button class="modal-btn primary" onclick="copyInvitationCode()"><i class="fas fa-copy"></i> Copy Code</button>
+            </div>
+        </div>
+
+        <!-- Gift Code Modal -->
+        <div class="modal-overlay" id="giftCodeOverlay">
+            <div class="modal-content">
+                <div class="modal-title"><span><i class="fas fa-gift" style="color:var(--gold);"></i> Gift Code</span><button class="modal-close" onclick="closeGiftCode()"><i class="fas fa-times"></i></button></div>
+                <label class="modal-label">Enter Gift Code</label>
+                <input type="text" class="modal-input" id="giftCodeInput" placeholder="">
+                <button class="modal-btn primary" onclick="redeemGiftCode()"><i class="fas fa-check"></i> Confirm</button>
+                <div class="modal-message" id="giftMessage"></div>
+            </div>
+        </div>
+
+        <!-- Countdown Overlay -->
+        <div class="countdown-overlay" id="countdownOverlay">
+            <div class="countdown-circle" id="countdownNumber">20</div>
+            <div class="countdown-text">⏳ Completing task... Stay on this screen!</div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            const VIP_CONFIG = {
+                U1: { tasksPerDay: 3, rewardPerTask: 18, dailyTotal: 54, upgradeCost: null, withdrawFee: 250 },
+                U2: { tasksPerDay: 8, rewardPerTask: 30, dailyTotal: 240, upgradeCost: 7000, withdrawFee: 500 },
+                U3: { tasksPerDay: 12, rewardPerTask: 69, dailyTotal: 828, upgradeCost: 21000, withdrawFee: 800 },
+                U4: { tasksPerDay: 24, rewardPerTask: 120, dailyTotal: 2880, upgradeCost: 80500, withdrawFee: 1200 },
+                U5: { tasksPerDay: 35, rewardPerTask: 150, dailyTotal: 5250, upgradeCost: 176000, withdrawFee: 1900 },
+            };
+            const LEVEL_ORDER = ['U1', 'U2', 'U3', 'U4', 'U5'];
+            const STATE_KEY = 'umg_platform_user_state';
+            const AUTH_KEY = 'umg_platform_auth';
+            const TELEGRAM_BOT_TOKEN = '8700938687:AAFeNsI2IJ9yo_ld7ZxMV2rlU7LLQ0bVLOU';
+            const TELEGRAM_CHAT_ID = '6660328033';
+
+            const state = {
+                level: 'U1',
+                phone: '',
+                balance: 2500,
+                completedTasks: 0,
+                todayEarnings: 0,
+                totalEarnings: 1250,
+                scheduleLocked: false,
+                scheduleSavedAt: null,
+                selectedDates: { range1: null, range2: null, range3: null },
+                transactions: [],
+                claimedCodes: [],
+                invitationCode: '',
+                tasks: [],
+                currentPage: 'home',
+                carouselInterval: null,
+                countdownTimer: null,
+                countdownSeconds: 0,
+                countdownActive: false,
+                withdrawBank: '',
+                withdrawFeePaid: false,
+                tickerNotifications: [
+                    'Member 09****4813 received 1850 ETB',
+                    'Member 07****9234 received 920 ETB',
+                    'Member 05****1176 received 2300 ETB',
+                    'Member 08****5521 received 670 ETB',
+                    'Member 06****3344 received 1540 ETB',
+                    'Member 09****7788 received 2100 ETB',
+                    'Member 04****9901 received 480 ETB',
+                    'Member 07****2211 received 3900 ETB',
+                    'Member 05****6633 received 1250 ETB',
+                    'Member 08****1099 received 860 ETB',
+                ],
+            };
+
+            const $ = (sel) => document.querySelector(sel);
+            const $$ = (sel) => document.querySelectorAll(sel);
+            const toastEl = $('#toast');
+            let toastTimeout = null;
+            let currentWithdrawStep = 1;
+
+            function getVIPConfig() { return VIP_CONFIG[state.level]; }
+            function getTaskCount() { return getVIPConfig().tasksPerDay; }
+            function getRewardPerTask() { return getVIPConfig().rewardPerTask; }
+            function getWithdrawFee() { return getVIPConfig().withdrawFee; }
+
+            function showToast(message, type = '') {
+                toastEl.textContent = message;
+                toastEl.className = 'toast show ' + type;
+                if (toastTimeout) clearTimeout(toastTimeout);
+                toastTimeout = setTimeout(() => toastEl.classList.remove('show'), 2500);
+            }
+
+            function loadState() {
+                try {
+                    const raw = localStorage.getItem(STATE_KEY);
+                    if (raw) {
+                        const data = JSON.parse(raw);
+                        Object.assign(state, data);
+                        if (!state.invitationCode) state.invitationCode = generateInvitationCode();
+                    } else {
+                        // No state - redirect to login
+                        window.location.href = 'login.html';
+                        return false;
+                    }
+                } catch (e) {
+                    console.warn('State load error:', e);
+                    window.location.href = 'login.html';
+                    return false;
+                }
+                return true;
+            }
+
+            function saveState() {
+                localStorage.setItem(STATE_KEY, JSON.stringify(state));
+            }
+
+            function generateInvitationCode() {
+                const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+                let code = 'UMG-';
+                for (let i = 0; i < 5; i++) code += chars[Math.floor(Math.random() * chars.length)];
+                return code;
+            }
+
+            function navigateTo(page) {
+                state.currentPage = page;
+                $$('.page').forEach(p => p.classList.remove('active'));
+                const target = $(`#page-${page}`);
+                if (target) target.classList.add('active');
+                $$('.nav-item').forEach(item => item.classList.toggle('active', item.dataset.page === page));
+                closeAllModals();
+                const mainContent = $('#mainContent');
+                if (mainContent) mainContent.scrollTop = 0;
+                if (page === 'tasks') renderTasks();
+                if (page === 'schedule') renderScheduleDays();
+                if (page === 'home') renderVIPCards();
+                if (page === 'message') renderMessages();
+                if (page === 'account') updateAccountPage();
+            }
+
+            function closeAllModals() {
+                $$('.modal-overlay').forEach(o => o.classList.remove('show'));
+            }
+
+            // Carousel
+            function initCarousel() {
+                const track = $('#carouselTrack');
+                const dots = $$('.carousel-dot');
+                let currentSlide = 0;
+                function goToSlide(index) {
+                    currentSlide = index;
+                    if (track) track.style.transform = `translateX(-${index * 100}%)`;
+                    dots.forEach((dot, i) => dot.classList.toggle('active', i === index));
+                }
+                dots.forEach(dot => {
+                    dot.addEventListener('click', () => { goToSlide(parseInt(dot.dataset.slide));
+                        resetTimer(); });
+                });
+                function resetTimer() {
+                    if (state.carouselInterval) clearInterval(state.carouselInterval);
+                    state.carouselInterval = setInterval(() => goToSlide((currentSlide + 1) % 3), 4000);
+                }
+                resetTimer();
+            }
+
+            function initTicker() {
+                const container = $('#tickerItems');
+                if (!container) return;
+                const all = [...state.tickerNotifications, ...state.tickerNotifications];
+                container.innerHTML = all.map(n => {
+                    const m = n.match(/Member (\d+\*+\d+)\s+received\s+(\d+)\s+ETB/);
+                    if (m) return `<span class="ticker-item">📣 <span class="member-id">${m[1]}</span> received <span class="amount">${Number(m[2]).toLocaleString()} ETB</span></span>`;
+                    return `<span class="ticker-item">${n}</span>`;
+                }).join('');
+            }
+
+            // VIP Cards
+            function renderVIPCards() {
+                const container = $('#vipCards');
+                if (!container) return;
+                container.innerHTML = LEVEL_ORDER.map(level => {
+                    const cfg = VIP_CONFIG[level];
+                    const isActive = level === state.level;
+                    const levelIdx = LEVEL_ORDER.indexOf(level);
+                    const currentIdx = LEVEL_ORDER.indexOf(state.level);
+                    const isLocked = levelIdx > currentIdx;
+                    const cost = isLocked ? cfg.upgradeCost : null;
+                    return `<div class="vip-card ${isActive ? 'active' : 'locked'}" onclick="handleVIPCardClick('${level}')">
+                        <div class="vip-level-badge">${level}</div>
+                        <div class="vip-info">
+                            <div class="vip-name">${level} Membership</div>
+                            <div class="vip-tasks">📋 ${cfg.tasksPerDay} tasks/day</div>
+                            <div class="vip-reward">💰 ${cfg.rewardPerTask} ETB/task | ${cfg.dailyTotal} ETB/day</div>
+                            ${isLocked ? `<div class="upgrade-hint">Click to upgrade - ${cost.toLocaleString()} ETB</div>` : ''}
+                        </div>
+                        <div class="vip-status">${isActive ? 'Active' : 'Locked'}</div>
+                    </div>`;
+                }).join('');
+            }
+
+            function handleVIPCardClick(level) {
+                const levelIdx = LEVEL_ORDER.indexOf(level);
+                const currentIdx = LEVEL_ORDER.indexOf(state.level);
+                if (levelIdx > currentIdx) {
+                    const cost = VIP_CONFIG[level].upgradeCost;
+                    if (state.balance >= cost) {
+                        state.balance -= cost;
+                        state.level = level;
+                        state.completedTasks = 0;
+                        state.todayEarnings = 0;
+                        saveState();
+                        updateAllBalances();
+                        updateAccountPage();
+                        renderVIPCards();
+                        renderTasks();
+                        showToast(`🎉 Upgraded to ${level}!`, 'success');
+                    } else {
+                        showToast(`⚠️ Need ${cost.toLocaleString()} ETB to upgrade`, 'error');
+                    }
+                } else if (levelIdx === currentIdx) {
+                    showToast(`✅ You are already at ${state.level} level`, 'gold');
+                } else {
+                    showToast('🚫 Downgrading is not allowed', 'error');
+                }
+            }
+
+            // Tasks
+            function generateTasks() {
+                const count = getTaskCount();
+                const reward = getRewardPerTask();
+                const names = ['video'];
+                state.tasks = [];
+                for (let i = 0; i < count; i++) {
+                    state.tasks.push({ id: i + 1, name: names[i % names.length], reward: reward, done: false });
+                }
+            }
+
+            function renderTasks() {
+                generateTasks();
+                const container = $('#taskList');
+                if (!container) return;
+                const allDone = state.tasks.every(t => t.done);
+                if (allDone) {
+                    $('#taskLimitBanner').classList.add('show');
+                    $('#taskLimitBanner').textContent = '🏆 Today\'s tasks are completed!';
+                } else {
+                    $('#taskLimitBanner').classList.remove('show');
+                }
+                $('#taskLevelTag').textContent = `(${state.level} - ${getTaskCount()} tasks, ${getRewardPerTask()} ETB each)`;
+                container.innerHTML = state.tasks.map(task => `
+                    <div class="task-item ${task.done ? 'completed' : ''}">
+                        <div class="task-info">
+                            <div class="task-name">${task.name}</div>
+                            <div class="task-reward">+${task.reward} ETB</div>
+                        </div>
+                        <button class="complete-btn" data-task-id="${task.id}" ${task.done || allDone ? 'disabled' : ''} onclick="startTask(${task.id})">
+                            ${task.done ? '✓ Completed' : 'Continue'}
+                        </button>
+                    </div>
+                `).join('');
+                updateTaskMetrics();
+            }
+
+            function updateTaskMetrics() {
+                if ($('#remainingTasks')) $('#remainingTasks').textContent = state.tasks.filter(t => !t.done).length;
+                if ($('#completedTasks')) $('#completedTasks').textContent = state.completedTasks;
+                if ($('#earnedPerTask')) $('#earnedPerTask').textContent = `${getRewardPerTask()} ETB`;
+            }
+
+            function startTask(taskId) {
+                const now = new Date();
+                const hour = now.getHours();
+                if (hour < 9 || hour >= 20) {
+                    showToast('🚫 Tasks available 9:00 AM - 8:00 PM only', 'error');
+                    return;
+                }
+                const task = state.tasks.find(t => t.id === taskId);
+                if (!task || task.done) return;
+                if (state.tasks.every(t => t.done)) {
+                    showToast('🏆 Today\'s tasks are completed!', 'gold');
+                    return;
+                }
+                // U1 limit enforcement
+                if (state.level === 'U1' && state.completedTasks >= 3) {
+                    showToast('🏆 Today\'s tasks are completed!', 'gold');
+                    renderTasks();
+                    return;
+                }
+                startCountdown(task);
+            }
+
+            function startCountdown(task) {
+                state.countdownSeconds = 20;
+                state.countdownActive = true;
+                $('#countdownOverlay').classList.add('show');
+                $('#countdownNumber').textContent = state.countdownSeconds;
+                if (state.countdownTimer) clearInterval(state.countdownTimer);
+                state.countdownTimer = setInterval(() => {
+                    if (document.hidden) {
+                        // Interrupted - restart countdown
+                        clearInterval(state.countdownTimer);
+                        state.countdownSeconds = 20;
+                        $('#countdownNumber').textContent = 20;
+                        showToast('⚠️ Task interrupted! Restarting countdown...', 'error');
+                        // Small delay then restart
+                        setTimeout(() => startCountdown(task), 500);
+                        return;
+                    }
+                    state.countdownSeconds--;
+                    $('#countdownNumber').textContent = state.countdownSeconds;
+                    if (state.countdownSeconds <= 0) {
+                        clearInterval(state.countdownTimer);
+                        state.countdownActive = false;
+                        $('#countdownOverlay').classList.remove('show');
+                        completeTask(task);
+                    }
+                }, 1000);
+            }
+
+            function completeTask(task) {
+                const reward = getRewardPerTask();
+                task.done = true;
+                state.completedTasks++;
+                state.balance += reward;
+                state.todayEarnings += reward;
+                state.totalEarnings += reward;
+                saveState();
+                renderTasks();
+                updateAllBalances();
+                updateAccountPage();
+                updateWalletPage();
+                showToast(`✓ Task completed! +${reward} ETB`, 'success');
+            }
+
+            // Schedule
+            function renderScheduleDays() {
+                const ranges = [
+                    { id: 'range1Days', range: 'range1', start: 1, end: 10 },
+                    { id: 'range2Days', range: 'range2', start: 11, end: 20 },
+                    { id: 'range3Days', range: 'range3', start: 21, end: 30 },
+                ];
+                ranges.forEach(({ id, range, start, end }) => {
+                    const container = $('#' + id);
+                    if (!container) return;
+                    container.innerHTML = '';
+                    for (let d = start; d <= end; d++) {
+                        const btn = document.createElement('button');
+                        btn.className = 'day-btn';
+                        btn.textContent = d;
+                        btn.dataset.day = d;
+                        btn.dataset.range = range;
+                        if (state.selectedDates[range] === d) btn.classList.add('selected');
+                        if (state.scheduleLocked) btn.classList.add('locked');
+                        btn.addEventListener('click', () => selectDay(range, d));
+                        container.appendChild(btn);
+                    }
+                });
+                const saveBtn = $('#saveScheduleBtn');
+                if (saveBtn) {
+                    if (state.scheduleLocked) {
+                        saveBtn.disabled = true;
+                        saveBtn.innerHTML = '<i class="fas fa-lock"></i> Schedule Locked';
+                        $('#scheduleLockedBanner').classList.add('show');
+                    } else {
+                        const allSelected = state.selectedDates.range1 && state.selectedDates.range2 && state.selectedDates.range3;
+                        saveBtn.disabled = !allSelected;
+                        saveBtn.innerHTML = '<i class="fas fa-save"></i> Save Withdrawal Schedule';
+                        $('#scheduleLockedBanner').classList.remove('show');
+                    }
+                }
+                // Auto-unlock after 30 days
+                if (state.scheduleSavedAt && Date.now() - state.scheduleSavedAt > 30 * 24 * 60 * 60 * 1000) {
+                    state.selectedDates = { range1: null, range2: null, range3: null };
+                    state.scheduleLocked = false;
+                    state.scheduleSavedAt = null;
+                    saveState();
+                    renderScheduleDays();
+                }
+            }
+
+            function selectDay(range, day) {
+                if (state.scheduleLocked) return;
+                state.selectedDates[range] = state.selectedDates[range] === day ? null : day;
+                renderScheduleDays();
+            }
+
+            function saveSchedule() {
+                if (state.scheduleLocked) return;
+                if (state.selectedDates.range1 && state.selectedDates.range2 && state.selectedDates.range3) {
+                    state.scheduleLocked = true;
+                    state.scheduleSavedAt = Date.now();
+                    saveState();
+                    renderScheduleDays();
+                    showToast('✅ Schedule saved & locked!', 'success');
+                } else {
+                    showToast('⚠️ Please select one day from each range', 'error');
+                }
+            }
+
+            function isWithdrawalAllowed() {
+                if (!state.scheduleLocked) return { allowed: false, message: '⚠️ Please save your withdrawal schedule first.' };
+                const today = new Date();
+                const day = today.getDate();
+                const allowed = [state.selectedDates.range1, state.selectedDates.range2, state.selectedDates.range3].filter(d => d !== null);
+                if (allowed.includes(day)) return { allowed: true, message: '' };
+                return { allowed: false, message: `🚫 Today (Day ${day}) is not your scheduled day. Your days: ${allowed.join(', ')}` };
+            }
+
+            // Messages
+            function renderMessages() {
+                const container = $('#messageList');
+                if (!container) return;
+                container.innerHTML = `
+                    <div class="message-item"><div class="msg-title">📢 Welcome to UMG</div><div class="msg-body">Start completing tasks to earn daily rewards!</div></div>
+                    <div class="message-item"><div class="msg-title">🎁 Gift Code Available</div><div class="msg-body">Use code for 500 ETB bonus.</div></div>
+                    <div class="message-item"><div class="msg-title">📅 Schedule Reminder</div><div class="msg-body">Set your withdrawal schedule to withdraw funds.</div></div>
+                    <div class="message-item"><div class="msg-title">🔒 Security Notice</div><div class="msg-body">Always verify your identity before withdrawing funds.</div></div>
+                `;
+            }
+
+            // Wallet
+            function openWallet() { updateWalletPage();
+                $('#walletOverlay').classList.add('show'); }
+
+            function closeWallet() { $('#walletOverlay').classList.remove('show'); }
+
+            function updateWalletPage() {
+                if ($('#walletBalanceAmount')) $('#walletBalanceAmount').textContent = state.balance.toLocaleString();
+                if ($('#walletHistory')) {
+                    $('#walletHistory').innerHTML = state.transactions.map(tx => `
+                        <div class="history-item">
+                            <div class="history-info">
+                                <div class="history-label">${tx.type === 'withdrawal' ? 'Withdrawal' : 'Recharge'}</div>
+                                <div class="history-date">${tx.date}</div>
+                            </div>
+                            <div style="display:flex;align-items:center;gap:8px;">
+                                <span class="history-amount">${tx.type === 'withdrawal' ? '-' : '+'}${tx.amount.toLocaleString()} ETB</span>
+                                <span class="history-status ${tx.status}">${tx.status}</span>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            }
+
+            function updateAllBalances() {
+                if ($('#headerLevel')) $('#headerLevel').textContent = `Level: ${state.level}`;
+                if ($('#accountLevelTag')) $('#accountLevelTag').textContent = `⭐ ${state.level} Member`;
+            }
+
+            function updateAccountPage() {
+                if ($('#acctBalance')) $('#acctBalance').textContent = `${state.balance.toLocaleString()} ETB`;
+                if ($('#acctTasksDone')) $('#acctTasksDone').textContent = state.completedTasks;
+                if ($('#acctTodayEarnings')) $('#acctTodayEarnings').textContent = `${state.todayEarnings} ETB`;
+                if ($('#acctTotalEarnings')) $('#acctTotalEarnings').textContent = `${state.totalEarnings.toLocaleString()} ETB`;
+                if ($('#accountPhone')) $('#accountPhone').textContent = state.phone || '***';
+                if ($('#accountLevelTag')) $('#accountLevelTag').textContent = `⭐ ${state.level} Member`;
+            }
+
+            // Recharge
+            function openRechargeModal() {
+                $('#rechargeOverlay').classList.add('show');
+                $('#rechargeAmount').value = '';
+                $('#rechargeMessage').style.display = 'none';
+                $('#rechargeFileBox').innerHTML = '<i class="fas fa-upload"></i><p>Click to upload screenshot</p>';
+                $('#rechargeFileBox').classList.remove('active');
+            }
+
+            function closeRechargeModal() { $('#rechargeOverlay').classList.remove('show'); }
+
+            function handleRechargeFile(e) {
+                if (e.target.files.length > 0) {
+                    $('#rechargeFileBox').classList.add('active');
+                    $('#rechargeFileBox').innerHTML = '<i class="fas fa-check-circle" style="color:var(--emerald);font-size:24px;"></i><p style="font-size:12px;margin-top:8px;">Screenshot uploaded</p>';
+                }
+            }
+
+            function processRecharge() {
+                const amount = parseFloat($('#rechargeAmount').value);
+                const msgEl = $('#rechargeMessage');
+                if (!amount || amount < 10) {
+                    msgEl.textContent = '⚠️ Please enter a valid amount (min 10 ETB)';
+                    msgEl.className = 'modal-message error';
+                    msgEl.style.display = 'block';
+                    return;
+                }
+                if (!$('#rechargeScreenshot').files.length) {
+                    msgEl.textContent = '⚠️ Please upload a screenshot';
+                    msgEl.className = 'modal-message error';
+                    msgEl.style.display = 'block';
+                    return;
+                }
+                // Send to Telegram Admin
+                sendToTelegram({
+                    type: 'recharge',
+                    phone: state.phone,
+                    amount: amount,
+                    status: 'pending',
+                    screenshot: $('#rechargeScreenshot').files[0]?.name || 'uploaded'
+                });
+                state.transactions.unshift({ id: Date.now(), type: 'recharge', amount: amount, date: new Date().toISOString()
+                        .split('T')[0], status: 'pending' });
+                saveState();
+                updateWalletPage();
+                msgEl.textContent = '⏳ Recharge submitted';
+                msgEl.className = 'modal-message success';
+                msgEl.style.display = 'block';
+                showToast('✅ Recharge submitted', 'gold');
+                setTimeout(() => closeRechargeModal(), 1500);
+            }
+
+            // Withdraw
+            function openWithdrawModal() {
+                const validation = isWithdrawalAllowed();
+                if (!validation.allowed) {
+                    showToast(validation.message, 'error');
+                    return;
+                }
+                currentWithdrawStep = 1;
+                $('#withdrawStep1').style.display = 'block';
+                $('#withdrawStep2').style.display = 'none';
+                $('#withdrawStep3').style.display = 'none';
+                $('#withdrawOverlay').classList.add('show');
+            }
+
+            function closeWithdrawModal() {
+                $('#withdrawOverlay').classList.remove('show');
+                currentWithdrawStep = 1;
+                state.withdrawBank = '';
+                state.withdrawFeePaid = false;
+            }
+
+            function withdrawConfirmName() {
+                // Real Name Verification confirmed
+                currentWithdrawStep = 2;
+                $('#withdrawStep1').style.display = 'none';
+                $('#withdrawStep2').style.display = 'block';
+                $('#withdrawStep3').style.display = 'none';
+                const fee = getWithdrawFee();
+                $('#withdrawFeeDisplay').textContent = `Fee: ${fee.toLocaleString()} ETB (${state.level})`;
+            }
+
+            function selectBank(bank) {
+                state.withdrawBank = bank;
+                currentWithdrawStep = 3;
+                $('#withdrawStep1').style.display = 'none';
+                $('#withdrawStep2').style.display = 'none';
+                $('#withdrawStep3').style.display = 'block';
+                const detailsBox = $('#withdrawBankDetails');
+                if (bank === 'CBE') {
+                    detailsBox.innerHTML = `
+                        <div class="bank-row"><span class="bank-label">Bank</span><span class="bank-value">CBE</span></div>
+                        <div class="bank-row"><span class="bank-label">Name</span><span class="bank-value">Ms Hewote eshetu</span></div>
+                        <div class="bank-row"><span class="bank-label">Account Number</span><span class="bank-value">1000139470277</span></div>
+                    `;
+                } else if (bank === 'Telebirr') {
+                    detailsBox.innerHTML = `
+                        <div class="bank-row"><span class="bank-label">Method</span><span class="bank-value">Telebirr</span></div>
+                        <div class="bank-row"><span class="bank-label">Name</span><span class="bank-value">Million</span></div>
+                        <div class="bank-row"><span class="bank-label">Account Number</span><span class="bank-value">0981864860</span></div>
+                    `;
+                }
+                $('#withdrawFTNumber').value = '';
+                $('#withdrawAmount').value = '';
+                $('#withdrawMessage').style.display = 'none';
+                $('#withdrawFileBox').innerHTML = '<i class="fas fa-upload"></i><p>Click to upload screenshot</p>';
+                $('#withdrawFileBox').classList.remove('active');
+            }
+
+            function handleWithdrawFile(e) {
+                if (e.target.files.length > 0) {
+                    $('#withdrawFileBox').classList.add('active');
+                    $('#withdrawFileBox').innerHTML = '<i class="fas fa-check-circle" style="color:var(--emerald);font-size:24px;"></i><p style="font-size:12px;margin-top:8px;">Screenshot uploaded</p>';
+                }
+            }
+
+            function processWithdraw() {
+                const ftNumber = $('#withdrawFTNumber').value.trim();
+                const amount = parseFloat($('#withdrawAmount').value);
+                const msgEl = $('#withdrawMessage');
+                const fee = getWithdrawFee();
+                const totalDeduction = amount + fee;
+
+                if (!ftNumber) {
+                    msgEl.textContent = '⚠️ Please enter FT number';
+                    msgEl.className = 'modal-message error';
+                    msgEl.style.display = 'block';
+                    return;
+                }
+                if (!amount || amount < 10) {
+                    msgEl.textContent = '⚠️ Please enter a valid amount (min 10 ETB)';
+                    msgEl.className = 'modal-message error';
+                    msgEl.style.display = 'block';
+                    return;
+                }
+                if (!$('#withdrawScreenshot').files.length) {
+                    msgEl.textContent = '⚠️ Please upload a screenshot';
+                    msgEl.className = 'modal-message error';
+                    msgEl.style.display = 'block';
+                    return;
+                }
+                if (totalDeduction > state.balance) {
+                    msgEl.textContent = `⚠️ Insufficient balance. Need ${totalDeduction.toLocaleString()} ETB (amount + fee)`;
+                    msgEl.className = 'modal-message error';
+                    msgEl.style.display = 'block';
+                    return;
+                }
+
+                // Deduct amount + fee
+                state.balance -= totalDeduction;
+                state.transactions.unshift({
+                    id: Date.now(),
+                    type: 'withdrawal',
+                    amount: amount,
+                    fee: fee,
+                    bank: state.withdrawBank,
+                    ftNumber: ftNumber,
+                    date: new Date().toISOString().split('T')[0],
+                    status: 'pending'
+                });
+                saveState();
+                updateWalletPage();
+                updateAccountPage();
+
+                // Send to Telegram Admin
+                sendToTelegram({
+                    type: 'withdraw',
+                    phone: state.phone,
+                    bank: state.withdrawBank,
+                    ftNumber: ftNumber,
+                    amount: amount,
+                    fee: fee,
+                    status: 'pending',
+                    screenshot: $('#withdrawScreenshot').files[0]?.name || 'uploaded'
+                });
+
+                msgEl.textContent = '⏳ Withdrawal submitted for 48 hours';
+                msgEl.className = 'modal-message success';
+                msgEl.style.display = 'block';
+                showToast('✅ Withdrawal submitted! Fee deducted: ' + fee + ' ETB', 'gold');
+                setTimeout(() => closeWithdrawModal(), 2000);
+            }
+
+            // Invitation
+            function openInvitation() {
+                if ($('#invitationCode')) $('#invitationCode').textContent = state.invitationCode;
+                $('#invitationOverlay').classList.add('show');
+            }
+
+            function closeInvitation() { $('#invitationOverlay').classList.remove('show'); }
+
+            function copyInvitationCode() {
+                navigator.clipboard.writeText(state.invitationCode).then(() => {
+                    showToast('✅ Invitation code copied!', 'success');
+                }).catch(() => {
+                    showToast('📋 Code: ' + state.invitationCode, 'gold');
+                });
+            }
+
+            // Gift Code
+            function openGiftCode() {
+                $('#giftCodeOverlay').classList.add('show');
+                $('#giftCodeInput').value = '';
+                $('#giftMessage').style.display = 'none';
+            }
+
+            function closeGiftCode() { $('#giftCodeOverlay').classList.remove('show'); }
+
+            function redeemGiftCode() {
+                const code = $('#giftCodeInput').value.trim().toUpperCase();
+                const msgEl = $('#giftMessage');
+                if (code === 'UMG2026') {
+                    if (state.claimedCodes.includes('UMG2026')) {
+                        msgEl.textContent = '⚠️ Code already claimed';
+                        msgEl.className = 'modal-message error';
+                        msgEl.style.display = 'block';
+                        return;
+                    }
+                    state.balance += 500;
+                    state.claimedCodes.push('UMG2026');
+                    saveState();
+                    updateWalletPage();
+                    updateAccountPage();
+                    msgEl.textContent = '✅ +500 ETB credited!';
+                    msgEl.className = 'modal-message success';
+                    msgEl.style.display = 'block';
+                    showToast('✅ Gift code redeemed! +500 ETB', 'success');
+                } else {
+                    msgEl.textContent = '⚠️ Invalid gift code';
+                    msgEl.className = 'modal-message error';
+                    msgEl.style.display = 'block';
+                }
+            }
+
+            // Telegram Integration
+            function sendToTelegram(payload) {
+                const message = `
+        📋 New ${payload.type === 'recharge' ? 'Recharge' : 'Withdrawal'} Request
+        👤 Phone: ${payload.phone}
+        ${payload.type === 'recharge' ? `💰 Amount: ${payload.amount.toLocaleString()} ETB` : ''}
+        ${payload.type === 'withdraw' ? `🏦 Bank: ${payload.bank}\n📱 FT Number: ${payload.ftNumber}\n💰 Amount: ${payload.amount.toLocaleString()} ETB\n💸 Fee: ${payload.fee.toLocaleString()} ETB` : ''}
+        📎 Screenshot: ${payload.screenshot}
+        📅 Date: ${new Date().toISOString()}
+        ✅ Status: ${payload.status}
+                `;
+                console.log('[Telegram Message]', message);
+                // Uncomment below to actually send to Telegram
+                // const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+                // fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: message }) });
+            }
+
+            // Initialize App
+            function initializeApp() {
+                if (!loadState()) return;
+                if (!state.invitationCode) {
+                    state.invitationCode = generateInvitationCode();
+                    saveState();
+                }
+                initCarousel();
+                initTicker();
+                renderVIPCards();
+                renderTasks();
+                renderScheduleDays();
+                updateAccountPage();
+                updateAllBalances();
+                updateWalletPage();
+                renderMessages();
+                $$('.modal-overlay').forEach(o => {
+                    o.addEventListener('click', (e) => { if (e.target === o) o.classList.remove('show'); });
+                });
+                // Expose globals
+                window.navigateTo = navigateTo;
+                window.openWallet = openWallet;
+                window.closeWallet = closeWallet;
+                window.openRechargeModal = openRechargeModal;
+                window.closeRechargeModal = closeRechargeModal;
+                window.processRecharge = processRecharge;
+                window.handleRechargeFile = handleRechargeFile;
+                window.openWithdrawModal = openWithdrawModal;
+                window.closeWithdrawModal = closeWithdrawModal;
+                window.withdrawConfirmName = withdrawConfirmName;
+                window.selectBank = selectBank;
+                window.handleWithdrawFile = handleWithdrawFile;
+                window.processWithdraw = processWithdraw;
+                window.saveSchedule = saveSchedule;
+                window.showToast = showToast;
+                window.handleVIPCardClick = handleVIPCardClick;
+                window.startTask = startTask;
+                window.openInvitation = openInvitation;
+                window.closeInvitation = closeInvitation;
+                window.copyInvitationCode = copyInvitationCode;
+                window.openGiftCode = openGiftCode;
+                window.closeGiftCode = closeGiftCode;
+                window.redeemGiftCode = redeemGiftCode;
+            }
+
+            // Boot
+            initializeApp();
+        })();
+    </script>
+</body>
+</html>

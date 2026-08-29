@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>UMG - Login</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        /* (your existing CSS remains unchanged) */
+        :root {
+            --bg-black: #000;
+            --bg-slate: #121212;
+            --bg-card: #1a1a1a;
+            --gold: #d4af37;
+            --gold-light: #f0d060;
+            --gold-dark: #b8962e;
+            --emerald: #4caf50;
+            --emerald-dark: #388e3c;
+            --text-primary: #fff;
+            --text-secondary: #b0b0b0;
+            --text-muted: #6a6a6a;
+            --border-dark: #2a2a2a;
+            --danger: #ef5350;
+            --shadow-gold: 0 4px 20px rgba(212, 175, 55, .3);
+            --radius: 14px;
+            --radius-sm: 8px;
+            --transition: all .3s cubic-bezier(.4, 0, .2, 1);
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #050505;
+            color: var(--text-primary);
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+        .login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-black);
+            z-index: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow-y: auto;
+        }
+        .login-container {
+            width: 100%;
+            max-width: 414px;
+            padding: 20px;
+            text-align: center;
+        }
+        .login-logo {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, var(--gold-light), var(--gold-dark));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            color: #000;
+            margin: 0 auto 16px;
+            box-shadow: var(--shadow-gold);
+            animation: globePulse 2s ease-in-out infinite;
+        }
+        @keyframes globePulse {
+            0%, 100% { box-shadow: 0 4px 20px rgba(212, 175, 55, .3); }
+            50% { box-shadow: 0 4px 35px rgba(212, 175, 55, .55); }
+        }
+        .login-title {
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: 3px;
+            background: linear-gradient(135deg, var(--gold-light), var(--gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+        }
+        .login-subtitle {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+            letter-spacing: 1px;
+        }
+        .modal-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+            display: block;
+            text-align: left;
+            letter-spacing: .5px;
+        }
+        .modal-input {
+            width: 100%;
+            background: var(--bg-card);
+            border: 1px solid var(--border-dark);
+            border-radius: var(--radius-sm);
+            padding: 12px 14px;
+            font-size: 14px;
+            color: #fff;
+            margin-bottom: 12px;
+            font-family: inherit;
+            outline: none;
+            transition: var(--transition);
+        }
+        .modal-input:focus {
+            border-color: var(--gold);
+            box-shadow: 0 0 0 2px rgba(212, 175, 55, .15);
+        }
+        .modal-input::placeholder {
+            color: var(--text-muted);
+        }
+        .login-btn {
+            width: 100%;
+            padding: 16px;
+            border-radius: var(--radius);
+            border: none;
+            font-size: 16px;
+            font-weight: 800;
+            cursor: pointer;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+            color: #000;
+            box-shadow: var(--shadow-gold);
+            font-family: inherit;
+            transition: var(--transition);
+            margin-top: 8px;
+        }
+        .login-btn:active {
+            transform: scale(.97);
+        }
+        .tier-selection {
+            display: none;
+        }
+        .tier-selection.show {
+            display: block;
+            animation: fadeIn .3s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .section-title {
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .section-title i {
+            color: var(--gold);
+        }
+        .tier-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            margin: 16px 0;
+        }
+        .tier-option {
+            background: var(--bg-card);
+            border: 2px solid var(--border-dark);
+            border-radius: var(--radius-sm);
+            padding: 16px 8px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: inherit;
+            color: var(--text-primary);
+        }
+        .tier-option:active {
+            transform: scale(.95);
+        }
+        .tier-option.selected {
+            border-color: var(--gold);
+            background: rgba(212, 175, 55, .1);
+            box-shadow: var(--shadow-gold);
+        }
+        .tier-option .tier-level {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--gold);
+            margin-bottom: 4px;
+        }
+        .tier-option .tier-tasks {
+            font-size: 9px;
+            color: var(--text-muted);
+        }
+        .tier-option .tier-reward {
+            font-size: 8px;
+            color: var(--emerald);
+            font-weight: 600;
+            margin-top: 2px;
+        }
+        .confirm-tier-btn {
+            width: 100%;
+            padding: 14px;
+            border-radius: var(--radius);
+            border: none;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            letter-spacing: 1px;
+            background: linear-gradient(135deg, var(--emerald-dark), var(--emerald));
+            color: #fff;
+            font-family: inherit;
+            transition: var(--transition);
+        }
+        .confirm-tier-btn:active {
+            transform: scale(.97);
+        }
+        .confirm-tier-btn:disabled {
+            background: var(--bg-slate);
+            color: var(--text-muted);
+            cursor: not-allowed;
+        }
+        .modal-message {
+            font-size: 12px;
+            padding: 10px;
+            border-radius: var(--radius-sm);
+            margin-bottom: 12px;
+            text-align: center;
+            font-weight: 600;
+            display: none;
+        }
+        .modal-message.error {
+            background: rgba(239, 83, 80, .15);
+            color: var(--danger);
+            display: block;
+        }
+        .modal-message.success {
+            background: rgba(76, 175, 80, .15);
+            color: var(--emerald);
+            display: block;
+        }
+        .toast {
+            position: fixed;
+            top: 70px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-20px);
+            background: var(--bg-slate);
+            border: 1px solid var(--border-dark);
+            border-radius: var(--radius-sm);
+            padding: 10px 18px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-primary);
+            z-index: 600;
+            opacity: 0;
+            transition: var(--transition);
+            pointer-events: none;
+            max-width: 380px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, .5);
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+        .toast.success { border-color: rgba(76, 175, 80, .4); color: var(--emerald); }
+        .toast.error { border-color: rgba(239, 83, 80, .4); color: var(--danger); }
+        .toast.gold { border-color: rgba(212, 175, 55, .4); color: var(--gold); }
+        @media (min-width:415px) {
+            .login-container { max-width: 414px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-overlay" id="loginOverlay">
+        <div class="login-container">
+            <div class="login-logo"><i class="fas fa-globe-americas"></i></div>
+            <div class="login-title">UMG</div>
+            <div class="login-subtitle">Level Up Your Investment</div>
+
+            <!-- Login Form -->
+            <div id="loginForm">
+                <label class="modal-label">Phone Number</label>
+                <input type="tel" class="modal-input" id="loginPhone" placeholder="Enter phone number">
+                <label class="modal-label">Password</label>
+                <input type="password" class="modal-input" id="loginPassword" placeholder="Enter password">
+                <div class="modal-message" id="loginMessage"></div>
+                <button class="login-btn" id="loginNowBtn" onclick="handleLogin()">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </button>
+            </div>
+
+            <!-- Tier Selection (hidden initially) -->
+            <div class="tier-selection" id="tierSelection">
+                <div class="section-title"><i class="fas fa-crown"></i> Select Your VIP Level</div>
+                <div class="tier-grid" id="tierGrid">
+                    <button class="tier-option" data-tier="U1"><div class="tier-level">U1</div><div class="tier-tasks"></div><div class="tier-reward"></div></button>
+                    <button class="tier-option" data-tier="U2"><div class="tier-level">U2</div><div class="tier-tasks"></div><div class="tier-reward"></div></button>
+                    <button class="tier-option" data-tier="U3"><div class="tier-level">U3</div><div class="tier-tasks"></div><div class="tier-reward"></div></button>
+                    <button class="tier-option" data-tier="U4"><div class="tier-level">U4</div><div class="tier-tasks"></div><div class="tier-reward"></div></button>
+                    <button class="tier-option" data-tier="U5"><div class="tier-level">U5</div><div class="tier-tasks"></div><div class="tier-reward"></div></button>
+                </div>
+                <button class="confirm-tier-btn" id="confirmTierBtn" onclick="confirmTierAndEnter()" disabled>
+                    <i class="fas fa-check"></i> Start with U1
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        (function() {
+            const $ = (sel) => document.querySelector(sel);
+            const $$ = (sel) => document.querySelectorAll(sel);
+            const toastEl = $('#toast');
+            let toastTimeout = null;
+            let selectedTier = 'U1';
+
+            const VIP_CONFIG = {
+                U1: { tasksPerDay: 3, rewardPerTask: 18, dailyTotal: 54, upgradeCost: null },
+                U2: { tasksPerDay: 8, rewardPerTask: 30, dailyTotal: 240, upgradeCost: 7000 },
+                U3: { tasksPerDay: 12, rewardPerTask: 69, dailyTotal: 828, upgradeCost: 21000 },
+                U4: { tasksPerDay: 24, rewardPerTask: 120, dailyTotal: 2880, upgradeCost: 80500 },
+                U5: { tasksPerDay: 35, rewardPerTask: 150, dailyTotal: 5250, upgradeCost: 176000 },
+            };
+
+            function showToast(message, type = '') {
+                toastEl.textContent = message;
+                toastEl.className = 'toast show ' + type;
+                if (toastTimeout) clearTimeout(toastTimeout);
+                toastTimeout = setTimeout(() => toastEl.classList.remove('show'), 2500);
+            }
+
+            // ===== MODIFIED: Accept ANY phone and password =====
+            function handleLogin() {
+                const phone = $('#loginPhone').value.trim();
+                const password = $('#loginPassword').value.trim();
+                const msgEl = $('#loginMessage');
+
+                if (!phone) {
+                    msgEl.textContent = '⚠️ Please enter your phone number';
+                    msgEl.className = 'modal-message error';
+                    msgEl.style.display = 'block';
+                    return;
+                }
+                if (!password) {
+                    msgEl.textContent = '⚠️ Please enter your password';
+                    msgEl.className = 'modal-message error';
+                    msgEl.style.display = 'block';
+                    return;
+                }
+
+                // No account verification – go directly to tier selection
+                msgEl.style.display = 'none';
+                showTierSelection(phone);
+            }
+
+            function showTierSelection(phone) {
+                $('#loginForm').style.display = 'none';
+                $('#tierSelection').classList.add('show');
+                selectedTier = 'U1';
+                updateTierGrid();
+                updateConfirmButton();
+                sessionStorage.setItem('umg_temp_phone', phone);
+            }
+
+            function updateTierGrid() {
+                $$('.tier-option').forEach(btn => {
+                    btn.classList.toggle('selected', btn.dataset.tier === selectedTier);
+                });
+            }
+
+            function updateConfirmButton() {
+                const btn = $('#confirmTierBtn');
+                btn.disabled = false;
+                const cfg = VIP_CONFIG[selectedTier];
+                btn.innerHTML = `<i class="fas fa-check"></i> Start with ${selectedTier} (${cfg.tasksPerDay} tasks/day)`;
+            }
+
+            function confirmTierAndEnter() {
+                if (!selectedTier) return;
+                const phone = sessionStorage.getItem('umg_temp_phone') || '';
+                const userState = {
+                    level: selectedTier,
+                    phone: phone,
+                    balance: 2500,
+                    completedTasks: 0,
+                    todayEarnings: 0,
+                    totalEarnings: 1250,
+                    scheduleLocked: false,
+                    scheduleSavedAt: null,
+                    selectedDates: { range1: null, range2: null, range3: null },
+                    transactions: [],
+                    claimedCodes: [],
+                    invitationCode: generateInvitationCode(),
+                    createdAt: Date.now()
+                };
+                localStorage.setItem('umg_platform_user_state', JSON.stringify(userState));
+                window.location.href = 'dashboard.html';
+            }
+
+            function generateInvitationCode() {
+                const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+                let code = 'UMG-';
+                for (let i = 0; i < 5; i++) code += chars[Math.floor(Math.random() * chars.length)];
+                return code;
+            }
+
+            // Event listeners for tier selection
+            $$('.tier-option').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    selectedTier = btn.dataset.tier;
+                    updateTierGrid();
+                    updateConfirmButton();
+                });
+            });
+
+            // Expose globals
+            window.handleLogin = handleLogin;
+            window.confirmTierAndEnter = confirmTierAndEnter;
+            
+            // Auto-redirect if already logged in
+if (localStorage.getItem('umg_platform_user_state')) {
+    window.location.href = 'dashboard.html';
+}
+        })();
+    </script>
+</body>
+</html>
